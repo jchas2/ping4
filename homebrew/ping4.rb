@@ -12,21 +12,15 @@
 class Ping4 < Formula
   desc "IPv4 ping for macOS"
   homepage "https://github.com/jchas2/ping4"
-  url "https://github.com/jchas2/ping4/archive/refs/tags/v1.0.0.tar.gz"
+  url "https://github.com/jchas2/ping4/releases/download/v1.0.0/ping4-v1.0.0-macos.tar.gz"
   sha256 "PLACEHOLDER"
   version "1.0.0"
   license "MIT"
-  head "https://github.com/jchas2/ping4.git", branch: "main"
 
-  depends_on "cmake" => :build
   depends_on :macos
 
   def install
-    system "cmake", "-S", ".", "-B", "build",
-           "-DPING4_VERSION=#{version}",
-           *std_cmake_args
-    system "cmake", "--build", "build"
-    bin.install "build/ping4"
+    bin.install "ping4"
   end
 
   test do
