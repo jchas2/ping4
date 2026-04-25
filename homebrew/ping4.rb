@@ -11,12 +11,12 @@
 
 class Ping4 < Formula
   desc "IPv4 ping for macOS"
-  homepage "https://github.com/#{tap.user}/ping4"
-  url "https://github.com/#{tap.user}/ping4/archive/refs/tags/v1.0.0.tar.gz"
+  homepage "https://github.com/jchas2/ping4"
+  url "https://github.com/jchas2/ping4/archive/refs/tags/v1.0.0.tar.gz"
   sha256 "PLACEHOLDER"
   version "1.0.0"
   license "MIT"
-  head "https://github.com/#{tap.user}/ping4.git", branch: "main"
+  head "https://github.com/jchas2/ping4.git", branch: "main"
 
   depends_on "cmake" => :build
   depends_on :macos
