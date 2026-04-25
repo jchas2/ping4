@@ -7,7 +7,9 @@
 #include <stdint.h>
 #include <time.h>
 
-#define PING4_VERSION        "1.0"
+#ifndef PING4_VERSION
+#define PING4_VERSION        "dev"
+#endif
 
 #define PING4_USAGE           2
 
