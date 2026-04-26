@@ -9,6 +9,9 @@ jobs:
     runs-on: macos-latest
     permissions:
       contents: write
+    outputs:
+      sha256:  ${{ steps.package.outputs.sha256 }}
+      version: ${{ steps.package.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,11 +25,13 @@ jobs:
         run: strip build/ping4
 
       - name: Package
+        id: package
         run: |
           VERSION=${GITHUB_REF_NAME}
           tar -czf ping4-${VERSION}-macos.tar.gz -C build ping4
           echo "TARBALL=ping4-${VERSION}-macos.tar.gz" >> $GITHUB_ENV
-          echo "SHA256=$(shasum -a 256 ping4-${VERSION}-macos.tar.gz | awk '{print $1}')" >> $GITHUB_ENV
+          echo "sha256=$(shasum -a 256 ping4-${VERSION}-macos.tar.gz | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "version=${VERSION#v}" >> $GITHUB_OUTPUT
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -44,23 +49,17 @@ jobs:
           repository: ${{ github.repository_owner }}/homebrew-ping4
           token: ${{ secrets.TAP_GITHUB_TOKEN }}
 
-      - name: Compute binary tarball SHA256
+      - name: Update formula
         run: |
           VERSION=${GITHUB_REF_NAME}
-          URL="https://github.com/${{ github.repository }}/releases/download/${VERSION}/ping4-${VERSION}-macos.tar.gz"
-          echo "SHA256=$(curl -sL $URL | shasum -a 256 | awk '{print $1}')" >> $GITHUB_ENV
-          echo "VERSION=${VERSION#v}" >> $GITHUB_ENV
-
-      - name: Update formula version and SHA256
-        run: |
           sed -i '' \
-            "s|url \".*\"|url \"https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/ping4-${GITHUB_REF_NAME}-macos.tar.gz\"|" \
+            "s|url \".*\"|url \"https://github.com/${{ github.repository }}/releases/download/${VERSION}/ping4-${VERSION}-macos.tar.gz\"|" \
             Formula/ping4.rb
           sed -i '' \
-            "s|sha256 \".*\"|sha256 \"${{ env.SHA256 }}\"|" \
+            "s|sha256 \".*\"|sha256 \"${{ needs.release.outputs.sha256 }}\"|" \
             Formula/ping4.rb
           sed -i '' \
-            "s|version \".*\"|version \"${{ env.VERSION }}\"|" \
+            "s|version \".*\"|version \"${{ needs.release.outputs.version }}\"|" \
             Formula/ping4.rb
 
       - name: Commit and push
